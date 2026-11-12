@@ -63,9 +63,11 @@ interface SiteContextValue {
   syncState: SyncState;
   syncMessage: string;
   githubServerConfigured: boolean;
+  isLocalServer: boolean;
   githubSyncToken: string;
   setGithubSyncToken: (token: string) => void;
   manualSyncToGithub: () => Promise<boolean>;
+  refreshSiteData: () => Promise<void>;
   updateSettings: (next: SiteSettings) => void;
   addPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
   updatePortfolioItem: (item: PortfolioItem) => void;
@@ -103,8 +105,34 @@ const STORAGE_KEYS = {
   settings: 'mk_dc_settings_v1',
   portfolio: 'mk_dc_portfolio_v1',
   enquiries: 'mk_dc_enquiries_v1',
+  deletedEnquiries: 'mk_dc_deleted_enquiries_v1',
   githubToken: 'mk_dc_gh_sync_token_v1',
 };
+
+function mergeEnquiries(
+  localList: EnquiryRecord[],
+  remoteList: EnquiryRecord[],
+  deletedIds: string[]
+): EnquiryRecord[] {
+  const deletedSet = new Set(deletedIds);
+  const byId = new Map<string, EnquiryRecord>();
+
+  for (const item of remoteList) {
+    if (item?.id && !deletedSet.has(item.id)) {
+      byId.set(item.id, item);
+    }
+  }
+  for (const item of localList) {
+    if (item?.id && !deletedSet.has(item.id)) {
+      const existing = byId.get(item.id);
+      byId.set(item.id, existing ? { ...existing, ...item } : item);
+    }
+  }
+
+  return Array.from(byId.values()).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
 
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
@@ -243,6 +271,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
   const [githubServerConfigured, setGithubServerConfigured] = useState<boolean>(false);
+  const [isLocalServer, setIsLocalServer] = useState<boolean>(false);
   const [syncState, setSyncState] = useState<SyncState>('idle');
   const [syncMessage, setSyncMessage] = useState<string>('Ready');
 
@@ -260,56 +289,71 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  useEffect(() => {
-    let active = true;
-    const applyLoadedData = (data: Record<string, unknown>) => {
-      if (!active || !data || typeof data !== 'object') return;
-      if (data.githubConfigured === true) {
-        setGithubServerConfigured(true);
-        setSyncState('synced');
-        setSyncMessage('Connected to GitHub via Vercel API');
-      } else if (data.localServerSync === true) {
-        setSyncState('synced');
-        setSyncMessage('Saved to localhost public/site-data.json');
-      }
-      if (data.settings && typeof data.settings === 'object') {
-        setSettings({ ...DEFAULT_SETTINGS, ...(data.settings as Partial<SiteSettings>) });
-      }
-      if (Array.isArray(data.portfolio)) {
-        setPortfolio(normalizePortfolioAssets(data.portfolio as PortfolioItem[]));
-      }
-      if (Array.isArray(data.enquiries)) {
-        setEnquiries(data.enquiries as EnquiryRecord[]);
-      }
-    };
-
-    fetch('/api/site-data', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && (data.settings || data.portfolio || data.enquiries)) {
-          applyLoadedData(data as Record<string, unknown>);
-          return null;
-        }
-        return fetch('/site-data.json', { cache: 'no-store' })
-          .then((r) => (r.ok ? r.json() : null))
-          .then((staticData) => {
-            if (staticData) applyLoadedData(staticData as Record<string, unknown>);
-          });
-      })
-      .catch(() => {
-        fetch('/site-data.json', { cache: 'no-store' })
-          .then((r) => (r.ok ? r.json() : null))
-          .then((staticData) => {
-            if (staticData) applyLoadedData(staticData as Record<string, unknown>);
-          })
-          .catch(() => {
-            // Fallback to localStorage defaults
-          });
+  const applyRemoteSnapshot = useCallback((data: Record<string, unknown>) => {
+    if (!data || typeof data !== 'object') return;
+    if (data.githubConfigured === true) {
+      setGithubServerConfigured(true);
+      setSyncState('synced');
+      setSyncMessage('Connected to GitHub via Vercel API');
+    } else if (data.localServerSync === true) {
+      setIsLocalServer(true);
+      setSyncState('synced');
+      setSyncMessage('Saved to localhost public/site-data.json');
+    }
+    if (data.settings && typeof data.settings === 'object') {
+      setSettings({ ...DEFAULT_SETTINGS, ...(data.settings as Partial<SiteSettings>) });
+    }
+    if (Array.isArray(data.portfolio)) {
+      setPortfolio(normalizePortfolioAssets(data.portfolio as PortfolioItem[]));
+    }
+    if (Array.isArray(data.enquiries)) {
+      const remoteEnquiries = data.enquiries as EnquiryRecord[];
+      const deletedIds = loadFromStorage<string[]>(STORAGE_KEYS.deletedEnquiries, []);
+      setEnquiries((prev) => {
+        const localSaved = loadFromStorage<EnquiryRecord[]>(STORAGE_KEYS.enquiries, prev);
+        return mergeEnquiries(localSaved, remoteEnquiries, deletedIds);
       });
+    }
+  }, []);
 
-    return () => {
-      active = false;
+  const refreshSiteData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/site-data', { cache: 'no-store' });
+      const data = res.ok ? ((await res.json()) as Record<string, unknown>) : null;
+      if (data && (data.settings || data.portfolio || data.enquiries)) {
+        applyRemoteSnapshot(data);
+        return;
+      }
+    } catch {
+      // Fallback to static snapshot below
+    }
+
+    try {
+      const staticRes = await fetch('/site-data.json', { cache: 'no-store' });
+      const staticData = staticRes.ok
+        ? ((await staticRes.json()) as Record<string, unknown>)
+        : null;
+      if (staticData) {
+        applyRemoteSnapshot(staticData);
+      }
+    } catch {
+      // Keep localStorage snapshot
+    }
+  }, [applyRemoteSnapshot]);
+
+  useEffect(() => {
+    void refreshSiteData();
+  }, [refreshSiteData]);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEYS.enquiries) {
+        const nextLocal = loadFromStorage<EnquiryRecord[]>(STORAGE_KEYS.enquiries, []);
+        setEnquiries(nextLocal);
+      }
     };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -477,11 +521,18 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<boolean> => {
     const record: EnquiryRecord = {
       ...entry,
-      id: `enq-${Date.now()}`,
+      id: `enq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       createdAt: new Date().toISOString(),
       status: 'new',
     };
-    const nextEnquiries = [record, ...enquiries];
+    const deletedIds = loadFromStorage<string[]>(STORAGE_KEYS.deletedEnquiries, []);
+    const storedEnquiries = loadFromStorage<EnquiryRecord[]>(STORAGE_KEYS.enquiries, enquiries);
+    const nextEnquiries = mergeEnquiries([record, ...storedEnquiries], [], deletedIds);
+    try {
+      localStorage.setItem(STORAGE_KEYS.enquiries, JSON.stringify(nextEnquiries));
+    } catch {
+      // Ignore storage quota errors
+    }
     setEnquiries(nextEnquiries);
     return persistSnapshot(
       { settings, portfolio, enquiries: nextEnquiries },
@@ -499,7 +550,20 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteEnquiry = (id: string) => {
+    const deletedIds = Array.from(
+      new Set([...loadFromStorage<string[]>(STORAGE_KEYS.deletedEnquiries, []), id])
+    );
+    try {
+      localStorage.setItem(STORAGE_KEYS.deletedEnquiries, JSON.stringify(deletedIds));
+    } catch {
+      // Ignore storage quota errors
+    }
     const nextEnquiries = enquiries.filter((e) => e.id !== id);
+    try {
+      localStorage.setItem(STORAGE_KEYS.enquiries, JSON.stringify(nextEnquiries));
+    } catch {
+      // Ignore storage quota errors
+    }
     setEnquiries(nextEnquiries);
     void persistSnapshot(
       { settings, portfolio, enquiries: nextEnquiries },
@@ -532,9 +596,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         syncState,
         syncMessage,
         githubServerConfigured,
+        isLocalServer,
         githubSyncToken,
         setGithubSyncToken,
         manualSyncToGithub,
+        refreshSiteData,
         updateSettings,
         addPortfolioItem,
         updatePortfolioItem,

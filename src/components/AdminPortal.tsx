@@ -53,9 +53,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     syncState,
     syncMessage,
     githubServerConfigured,
+    isLocalServer,
     githubSyncToken,
     setGithubSyncToken,
     manualSyncToGithub,
+    refreshSiteData,
     updateSettings,
     addPortfolioItem,
     updatePortfolioItem,
@@ -81,6 +83,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [siteToast, setSiteToast] = useState<string | null>(null);
+  const [isRefreshingEnquiries, setIsRefreshingEnquiries] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void refreshSiteData();
+    }
+  }, [isAuthenticated, refreshSiteData]);
 
   // Settings form state
   const [draftSettings, setDraftSettings] = useState<SiteSettings>(settings);
@@ -706,6 +715,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
            =============================================================== */}
         {activeTab === 'enquiries' && (
           <div className="space-y-5">
+            {!githubServerConfigured && !isLocalServer && (
+              <div className="p-4 rounded-2xl bg-amber-950/35 border border-amber-500/35 text-xs text-amber-100/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    Enquiries submitted on this browser save here immediately. To receive enquiries
+                    submitted from <strong className="text-white">other people&apos;s phones/devices</strong>{' '}
+                    on your live Vercel site, add <code className="font-mono text-amber-300">GITHUB_TOKEN</code>{' '}
+                    in Vercel → Project Settings → Environment Variables and redeploy.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('settings')}
+                  className="px-3.5 py-1.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 font-medium whitespace-nowrap cursor-pointer self-start sm:self-auto"
+                >
+                  Open Sync Settings
+                </button>
+              </div>
+            )}
+
             <div className="p-4 rounded-2xl bg-[#111520]/80 border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2">
                 {(
@@ -732,15 +762,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
                 ))}
               </div>
 
-              <div className="relative w-full sm:w-72">
-                <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search name, brand, or service..."
-                  className={`${inputClasses} pl-9 py-2`}
-                />
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search name, brand, or service..."
+                    className={`${inputClasses} pl-9 py-2`}
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={isRefreshingEnquiries}
+                  onClick={async () => {
+                    setIsRefreshingEnquiries(true);
+                    await refreshSiteData();
+                    setIsRefreshingEnquiries(false);
+                    showToastMessage('Enquiries refreshed');
+                  }}
+                  title="Refresh enquiries"
+                  className="p-2.5 rounded-xl bg-[#07090E] border border-white/10 hover:border-[#E5B869]/50 text-[#94A3B8] hover:text-[#E5B869] transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshingEnquiries ? 'animate-spin' : ''}`} />
+                </button>
               </div>
             </div>
 
