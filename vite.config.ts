@@ -5,7 +5,7 @@ import path from 'path';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { defineConfig, type Plugin } from 'vite';
 
-const LOCAL_DB_PATH = path.resolve(__dirname, '.local-admin-db.json');
+const LOCAL_DB_PATH = path.resolve(__dirname, 'public', 'site-data.json');
 
 function attachAdminApiMiddleware(middlewares: {
   use: (
@@ -19,10 +19,11 @@ function attachAdminApiMiddleware(middlewares: {
         const raw = fs.existsSync(LOCAL_DB_PATH)
           ? fs.readFileSync(LOCAL_DB_PATH, 'utf-8')
           : '{}';
+        const parsed = JSON.parse(raw || '{}') as Record<string, unknown>;
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
-        res.end(raw || '{}');
+        res.end(JSON.stringify({ ...parsed, localServerSync: true }));
       } catch {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
@@ -52,15 +53,25 @@ function attachAdminApiMiddleware(middlewares: {
         }
         try {
           const bodyStr = Buffer.concat(chunks).toString('utf-8');
-          const parsed = JSON.parse(bodyStr);
+          const parsed = JSON.parse(bodyStr) as Record<string, unknown>;
           const existing = fs.existsSync(LOCAL_DB_PATH)
-            ? JSON.parse(fs.readFileSync(LOCAL_DB_PATH, 'utf-8') || '{}')
+            ? (JSON.parse(fs.readFileSync(LOCAL_DB_PATH, 'utf-8') || '{}') as Record<
+                string,
+                unknown
+              >)
             : {};
-          const merged = { ...existing, ...parsed };
-          fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(merged, null, 2), 'utf-8');
+          const merged: Record<string, unknown> = { ...existing };
+          if (parsed.settings !== undefined) merged.settings = parsed.settings;
+          if (parsed.portfolio !== undefined) merged.portfolio = parsed.portfolio;
+          if (parsed.enquiries !== undefined) merged.enquiries = parsed.enquiries;
+          if (parsed.appendEnquiry !== undefined) {
+            const current = Array.isArray(merged.enquiries) ? merged.enquiries : [];
+            merged.enquiries = [parsed.appendEnquiry, ...current];
+          }
+          fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(merged, null, 2) + '\n', 'utf-8');
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true }));
+          res.end(JSON.stringify({ ok: true, localServerSync: true }));
         } catch {
           res.statusCode = 400;
           res.setHeader('Content-Type', 'application/json');
@@ -103,7 +114,7 @@ export default defineConfig(() => {
         process.env.DISABLE_HMR === 'true'
           ? null
           : {
-              ignored: ['**/.local-admin-db.json'],
+              ignored: ['**/.local-admin-db.json', '**/public/site-data.json'],
             },
     },
   };

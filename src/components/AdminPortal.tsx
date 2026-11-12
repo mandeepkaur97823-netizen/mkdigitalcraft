@@ -25,6 +25,8 @@ import {
   Sparkles,
   Mail,
   ShieldCheck,
+  CloudUpload,
+  RefreshCw,
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import {
@@ -48,6 +50,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     settings,
     portfolio,
     enquiries,
+    syncState,
+    syncMessage,
+    githubServerConfigured,
+    githubSyncToken,
+    setGithubSyncToken,
+    manualSyncToGithub,
     updateSettings,
     addPortfolioItem,
     updatePortfolioItem,
@@ -360,6 +368,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
               />
               <span>{settings.siteEnabled ? 'Site is Live (ON)' : 'Site Offline (OFF)'}</span>
             </span>
+
             <button
               type="button"
               onClick={onExit}
@@ -436,6 +445,43 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
                 }`}
               >
                 <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+              </span>
+            </button>
+
+            {/* GitHub Sync Status Button */}
+            <button
+              type="button"
+              onClick={async () => {
+                const ok = await manualSyncToGithub();
+                if (!ok && !githubServerConfigured && !githubSyncToken) {
+                  setActiveTab('settings');
+                }
+                showToastMessage(
+                  ok
+                    ? 'All live site data saved to GitHub!'
+                    : 'Configure GitHub Token in Settings to push live changes'
+                );
+              }}
+              title={syncMessage}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                syncState === 'synced'
+                  ? 'bg-[#E5B869]/10 border-[#E5B869]/40 text-[#F3D18E]'
+                  : syncState === 'error'
+                    ? 'bg-rose-500/10 border-rose-400/35 text-rose-300'
+                    : 'bg-white/[0.03] border-white/15 text-[#CBD5E1] hover:border-[#E5B869]/50 hover:text-[#E5B869]'
+              }`}
+            >
+              {syncState === 'syncing' ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#E5B869]" />
+              ) : (
+                <CloudUpload className="w-3.5 h-3.5 text-[#E5B869]" />
+              )}
+              <span>
+                {syncState === 'syncing'
+                  ? 'Syncing...'
+                  : syncState === 'synced'
+                    ? 'GitHub Synced'
+                    : 'Sync to GitHub'}
               </span>
             </button>
 
@@ -1192,6 +1238,76 @@ Details: ${item.projectDetails}`;
                   />
                 </div>
               </div>
+            </div>
+
+            {/* GitHub Live Auto-Sync Card */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-[#111520]/90 border border-white/[0.08] space-y-4 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <CloudUpload className="w-4 h-4 text-[#E5B869]" />
+                    <h2 className="text-lg sm:text-xl font-display font-semibold text-white">
+                      GitHub Auto-Sync (Live Website → GitHub)
+                    </h2>
+                  </div>
+                  <p className="text-xs text-[#94A3B8]">
+                    Status: <span className="text-[#E5B869] font-medium">{syncMessage}</span> · Saves
+                    all Site ON/OFF changes, Portfolio edits, Settings, and Enquiries to{' '}
+                    <span className="font-mono text-white/80">public/site-data.json</span> on
+                    GitHub.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await manualSyncToGithub();
+                    showToastMessage(
+                      ok
+                        ? 'Saved & committed to GitHub!'
+                        : 'Add a GitHub repo token below or set GITHUB_TOKEN in Vercel.'
+                    );
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all cursor-pointer shrink-0"
+                >
+                  <CloudUpload className="w-3.5 h-3.5" />
+                  <span>Sync Now to GitHub</span>
+                </button>
+              </div>
+
+              {!githubServerConfigured && (
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                  <div className="sm:col-span-9">
+                    <label className="block text-xs font-medium text-[#E2E8F0] mb-1.5">
+                      Optional Browser GitHub Token (if <span className="font-mono">GITHUB_TOKEN</span>{' '}
+                      is not yet added in Vercel Environment Variables)
+                    </label>
+                    <input
+                      type="password"
+                      value={githubSyncToken}
+                      onChange={(e) => setGithubSyncToken(e.target.value)}
+                      placeholder="Paste Classic Token with 'repo' scope (saved only in your browser)"
+                      className={inputClasses}
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGithubSyncToken(githubSyncToken);
+                        showToastMessage(
+                          githubSyncToken
+                            ? 'GitHub Sync Token saved on this device'
+                            : 'GitHub Sync Token cleared'
+                        );
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#E5B869]/50 text-xs font-medium text-white transition-colors cursor-pointer"
+                    >
+                      {githubSyncToken ? 'Update Token' : 'Save Token'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Brand & Content Settings Card */}
