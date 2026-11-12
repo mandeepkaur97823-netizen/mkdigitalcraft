@@ -204,30 +204,30 @@ ${projectDetails.trim()}`;
   return (
     <section
       id="contact"
-      className="py-20 bg-[#07090E] relative overflow-hidden border-t border-white/[0.06]"
+      className="py-12 sm:py-20 bg-[#07090E] relative overflow-hidden border-t border-white/[0.06]"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-2">
+        <div className="text-center max-w-2xl mx-auto mb-7 sm:mb-12">
+          <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-1.5 sm:mb-2">
             Start a Project
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-semibold tracking-tight text-white mb-3">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold tracking-tight text-white mb-2 sm:mb-3">
             Tell Us About Your Vision
           </h2>
-          <p className="text-sm sm:text-base text-[#94A3B8]">
+          <p className="text-xs sm:text-base text-[#94A3B8]">
             Fill out your project details below to send directly via Instagram DM or Email.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
           {/* Left Panel: Direct Channels */}
-          <div className="lg:col-span-4 space-y-5">
-            <div className="p-6 sm:p-7 rounded-3xl bg-[#111520] border border-white/[0.08] space-y-6">
+          <div className="lg:col-span-4 space-y-4 sm:space-y-5">
+            <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-[#111520] border border-white/[0.08] space-y-4 sm:space-y-6">
               <div>
-                <span className="text-[11px] font-semibold tracking-[0.18em] text-[#E5B869] uppercase block mb-1.5">
+                <span className="text-[11px] font-semibold tracking-[0.18em] text-[#E5B869] uppercase block mb-1 sm:mb-1.5">
                   Direct Channels
                 </span>
-                <h3 className="text-xl font-display font-semibold text-white mb-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-semibold text-white mb-1 sm:mb-1.5">
                   Message Us Directly
                 </h3>
                 <p className="text-xs text-[#94A3B8] leading-relaxed">
@@ -235,12 +235,12 @@ ${projectDetails.trim()}`;
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
                 <a
                   href={settings.instagramDmUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-[#E5B869]/15 to-[#07090E] border border-[#E5B869]/35 hover:border-[#E5B869] text-xs font-semibold text-white transition-all group"
+                  className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-[#E5B869]/15 to-[#07090E] border border-[#E5B869]/35 hover:border-[#E5B869] text-xs font-semibold text-white transition-all group"
                 >
                   <span className="inline-flex items-center gap-2.5">
                     <Instagram className="w-4 h-4 text-[#E5B869] shrink-0" />
@@ -263,7 +263,7 @@ ${projectDetails.trim()}`;
                 )}
               </div>
 
-              <div className="pt-4 border-t border-white/[0.08] space-y-2">
+              <div className="hidden lg:block pt-4 border-t border-white/[0.08] space-y-2">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8] block">
                   Quick Select Service
                 </span>
@@ -292,7 +292,7 @@ ${projectDetails.trim()}`;
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="p-6 sm:p-8 lg:p-9 rounded-3xl bg-gradient-to-b from-[#131825] to-[#10141E] border border-white/[0.1] shadow-2xl space-y-6 relative overflow-hidden"
+              className="p-5 sm:p-8 lg:p-9 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#131825] to-[#10141E] border border-white/[0.1] shadow-2xl space-y-5 sm:space-y-6 relative overflow-hidden"
             >
               <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#E5B869]/70 to-transparent" />
 

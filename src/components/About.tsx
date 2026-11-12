@@ -25,7 +25,7 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
   return (
     <section
       id="about"
-      className="py-20 bg-[#0B0E16] relative overflow-hidden border-t border-white/[0.06]"
+      className="py-12 sm:py-20 bg-[#0B0E16] relative overflow-hidden border-t border-white/[0.06]"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -33,38 +33,47 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5 }}
-          className="rounded-3xl bg-gradient-to-b from-[#141926] to-[#0F131D] border border-white/[0.09] p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden"
+          className="rounded-3xl bg-gradient-to-b from-[#141926] to-[#0F131D] border border-white/[0.09] p-5 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden"
         >
           {/* Subtle top golden hairline & corner ambient glow */}
           <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#E5B869]/65 to-transparent" />
           <div className="absolute -bottom-28 -right-28 w-72 h-72 bg-[#E5B869]/[0.07] rounded-full blur-[110px] pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
             {/* Left Column: Framed Studio Emblem Card */}
             <div className="lg:col-span-5">
-              <div className="rounded-2xl bg-[#07090E]/90 border border-white/[0.08] p-7 sm:p-8 flex flex-col items-center text-center relative overflow-hidden">
+              <div className="rounded-2xl bg-[#07090E]/90 border border-white/[0.08] p-4 sm:p-7 lg:p-8 flex flex-col relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(229,184,105,0.08),transparent_65%)] pointer-events-none" />
 
-                <div className="relative group mb-5">
-                  <div className="absolute -inset-3 rounded-full bg-[#E5B869]/20 blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
-                  <BrandLogo size="xl" showText={false} className="relative z-10" />
+                <div className="flex flex-row lg:flex-col items-center text-left lg:text-center gap-3.5 lg:gap-0 relative z-10">
+                  <div className="relative group shrink-0 lg:mb-5">
+                    <div className="absolute -inset-2 sm:-inset-3 rounded-full bg-[#E5B869]/20 blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
+                    <div className="lg:hidden">
+                      <BrandLogo size="md" showText={false} className="relative z-10" />
+                    </div>
+                    <div className="hidden lg:block">
+                      <BrandLogo size="xl" showText={false} className="relative z-10" />
+                    </div>
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="font-display font-semibold text-base sm:text-xl text-white tracking-tight truncate">
+                      {settings.brandName}
+                    </h3>
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-[#E5B869] tracking-[0.18em] sm:tracking-[0.22em] uppercase mt-0.5 lg:mt-1 lg:mb-6 block truncate">
+                      {settings.slogan}
+                    </span>
+                  </div>
                 </div>
 
-                <h3 className="font-display font-semibold text-xl text-white tracking-tight">
-                  {settings.brandName}
-                </h3>
-                <span className="text-[11px] font-semibold text-[#E5B869] tracking-[0.22em] uppercase mt-1 mb-6">
-                  {settings.slogan}
-                </span>
-
-                <div className="w-full pt-5 border-t border-white/[0.08] grid grid-cols-3 gap-2">
+                <div className="w-full pt-3.5 sm:pt-5 mt-3.5 lg:mt-0 border-t border-white/[0.08] grid grid-cols-3 gap-1.5 sm:gap-2 relative z-10">
                   {pillars.map(({ icon: Icon, label }) => (
                     <div
                       key={label}
-                      className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]"
+                      className="flex flex-col items-center gap-1 sm:gap-1.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05] text-center"
                     >
-                      <Icon className="w-4 h-4 text-[#E5B869]" />
-                      <span className="text-[11px] font-medium text-[#CBD5E1] leading-tight">
+                      <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E5B869]" />
+                      <span className="text-[10px] sm:text-[11px] font-medium text-[#CBD5E1] leading-tight">
                         {label}
                       </span>
                     </div>
@@ -74,43 +83,43 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
             </div>
 
             {/* Right Column: Editorial Narrative & Commitments */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-left">
               <div>
-                <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-2.5">
+                <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-1.5 sm:mb-2.5">
                   About MK Digital Craft
                 </span>
 
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-semibold text-white tracking-[-0.02em] leading-[1.14]">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-semibold text-white tracking-[-0.02em] leading-[1.16]">
                   {settings.aboutHeadingPrefix}{' '}
                   <span className="text-gradient-gold">{settings.aboutHeadingAccent}</span>
                 </h2>
               </div>
 
-              <p className="text-sm sm:text-base text-[#CBD5E1]/90 leading-[1.75]">
+              <p className="text-xs sm:text-base text-[#CBD5E1]/90 leading-[1.7]">
                 {settings.aboutDescription}
               </p>
 
               {/* Clean 3-Point Studio Commitments */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1">
                 {commitments.map((item) => (
                   <div
                     key={item.code}
-                    className="p-3.5 rounded-xl bg-[#07090E]/75 border border-white/[0.07]"
+                    className="p-2.5 sm:p-3.5 rounded-xl bg-[#07090E]/75 border border-white/[0.07]"
                   >
-                    <span className="text-[10px] font-mono font-semibold text-[#E5B869] block mb-1">
+                    <span className="text-[10px] font-mono font-semibold text-[#E5B869] block mb-0.5 sm:mb-1">
                       {item.code}
                     </span>
-                    <h4 className="text-xs font-semibold text-white mb-0.5">{item.title}</h4>
-                    <p className="text-[11px] text-[#94A3B8]">{item.subtitle}</p>
+                    <h4 className="text-[11px] sm:text-xs font-semibold text-white mb-0.5 leading-tight">{item.title}</h4>
+                    <p className="text-[10px] sm:text-[11px] text-[#94A3B8] leading-tight">{item.subtitle}</p>
                   </div>
                 ))}
               </div>
 
               {/* Action Row */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
                 <button
                   onClick={onContactClick}
-                  className="min-h-[44px] inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs sm:text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all shadow-[0_8px_24px_-6px_rgba(229,184,105,0.45)] cursor-pointer"
+                  className="min-h-[42px] sm:min-h-[44px] inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all shadow-[0_8px_24px_-6px_rgba(229,184,105,0.45)] cursor-pointer"
                 >
                   <span>Start a Project</span>
                   <ArrowRight className="w-4 h-4" />
@@ -120,7 +129,7 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
                   href={settings.instagramDmUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="min-h-[44px] inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs sm:text-sm font-medium text-[#E2E8F0] hover:text-white border border-white/15 hover:border-[#E5B869]/45 bg-white/[0.02] hover:bg-white/[0.05] transition-all"
+                  className="min-h-[42px] sm:min-h-[44px] inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-medium text-[#E2E8F0] hover:text-white border border-white/15 hover:border-[#E5B869]/45 bg-white/[0.02] hover:bg-white/[0.05] transition-all"
                 >
                   <Instagram className="w-4 h-4 text-[#E5B869]" />
                   <span>Instagram DM</span>
@@ -128,7 +137,7 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
 
                 <a
                   href={`mailto:${settings.email}`}
-                  className="min-h-[44px] inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs sm:text-sm font-medium text-[#94A3B8] hover:text-[#E5B869] border border-white/10 hover:border-[#E5B869]/35 transition-all"
+                  className="min-h-[42px] sm:min-h-[44px] inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-medium text-[#94A3B8] hover:text-[#E5B869] border border-white/10 hover:border-[#E5B869]/35 transition-all"
                 >
                   <Mail className="w-4 h-4 text-[#E5B869]" />
                   <span>Email</span>

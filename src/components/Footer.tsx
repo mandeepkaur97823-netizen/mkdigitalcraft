@@ -30,13 +30,22 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
   ];
 
   return (
-    <footer className="bg-[#07090E] border-t border-white/[0.08] pt-14 pb-10 relative overflow-hidden">
+    <footer className="bg-[#07090E] border-t border-white/[0.08] pt-10 pb-8 sm:pt-14 sm:pb-10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-10 border-b border-white/[0.08]">
-          <div className="lg:col-span-5 space-y-4">
-            <a href="#home" className="inline-block">
-              <BrandLogo size="md" showText={true} />
-            </a>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-7 sm:gap-10 pb-7 sm:pb-10 border-b border-white/[0.08]">
+          <div className="lg:col-span-5 space-y-3 sm:space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <a href="#home" className="inline-block">
+                <BrandLogo size="md" showText={true} />
+              </a>
+              <button
+                onClick={scrollToTop}
+                className="lg:hidden p-2.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-[#E5B869]/50 text-white/80 hover:text-[#E5B869] transition-all cursor-pointer shrink-0"
+                aria-label="Back to top"
+              >
+                <ArrowUp className="w-4 h-4" />
+              </button>
+            </div>
             <p className="text-xs sm:text-sm text-[#94A3B8] max-w-xs leading-relaxed">
               {settings.slogan} — Websites, video production, and brand design.
             </p>
@@ -65,43 +74,45 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
             </div>
           </div>
 
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#E5B869]">
-              Navigation
-            </h4>
-            <ul className="space-y-2 text-xs sm:text-sm">
-              {navLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-[#94A3B8] hover:text-white transition-colors block py-0.5"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div className="grid grid-cols-2 gap-6 lg:col-span-6">
+            <div className="space-y-2.5 sm:space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-[#E5B869]">
+                Navigation
+              </h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                {navLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="text-[#94A3B8] hover:text-white transition-colors block py-0.5"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-2.5 sm:space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-[#E5B869]">
+                Services
+              </h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                {serviceLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="text-[#94A3B8] hover:text-white transition-colors block py-0.5"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#E5B869]">
-              Services
-            </h4>
-            <ul className="space-y-2 text-xs sm:text-sm">
-              {serviceLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-[#94A3B8] hover:text-white transition-colors block py-0.5"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-1 flex lg:justify-end items-start">
+          <div className="hidden lg:flex lg:col-span-1 justify-end items-start">
             <button
               onClick={scrollToTop}
               className="p-3 rounded-full bg-white/[0.04] border border-white/10 hover:border-[#E5B869]/50 text-white/80 hover:text-[#E5B869] transition-all cursor-pointer"

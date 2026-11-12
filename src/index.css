@@ -67,3 +67,12 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #E5B869;
 }
+
+/* Hide scrollbars for sleek mobile snap carousels */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

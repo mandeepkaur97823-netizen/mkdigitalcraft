@@ -37,16 +37,16 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onEnquireProject }) => {
   return (
     <section
       id="work"
-      className="py-20 bg-[#07090E] relative overflow-hidden border-t border-white/[0.06]"
+      className="py-12 sm:py-20 bg-[#07090E] relative overflow-hidden border-t border-white/[0.06]"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 sm:gap-6 mb-6 sm:mb-12">
           <div>
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-2">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-1.5 sm:mb-2">
               Our Work
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-semibold tracking-tight text-white mb-2">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold tracking-tight text-white mb-1.5 sm:mb-2">
               Selected Showcase
             </h2>
             <p className="text-xs sm:text-sm text-[#94A3B8]">
@@ -55,7 +55,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onEnquireProject }) => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl sm:rounded-full bg-[#111520] border border-white/10 self-start lg:self-auto">
+          <div className="flex md:inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#111520] border border-white/10 overflow-x-auto no-scrollbar max-w-full self-start lg:self-auto">
             {filters.map((filter) => {
               const isActive = activeFilter === filter.id;
               return (
@@ -63,7 +63,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onEnquireProject }) => {
                   key={filter.id}
                   type="button"
                   onClick={() => setActiveFilter(filter.id)}
-                  className={`px-3.5 sm:px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 sm:px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-[#E5B869] text-[#07090E] font-semibold'
                       : 'text-[#94A3B8] hover:text-white'
@@ -76,8 +76,19 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onEnquireProject }) => {
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Mobile Swipe Indicator */}
+        <div className="flex md:hidden items-center justify-between text-[11px] text-[#94A3B8] mb-3 px-0.5">
+          <span>
+            {filteredItems.length} {filteredItems.length === 1 ? 'showcase' : 'showcases'}
+          </span>
+          <span className="inline-flex items-center gap-1 text-[#E5B869] font-medium">
+            <span>Swipe to explore</span>
+            <ArrowRight className="w-3 h-3" />
+          </span>
+        </div>
+
+        {/* Mobile Horizontal Snap Carousel / Tablet & Desktop Grid */}
+        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar md:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item) => (
             <motion.article
               layout
@@ -85,7 +96,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onEnquireProject }) => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="group rounded-2xl bg-[#111520] border border-white/[0.08] overflow-hidden flex flex-col justify-between hover:border-[#E5B869]/40 transition-all duration-300 hover:-translate-y-0.5"
+              className="w-[82vw] max-w-[330px] md:w-auto md:max-w-none shrink-0 snap-center group rounded-2xl bg-[#111520] border border-white/[0.08] overflow-hidden flex flex-col justify-between hover:border-[#E5B869]/40 transition-all duration-300 hover:-translate-y-0.5"
             >
               <div>
                 <div

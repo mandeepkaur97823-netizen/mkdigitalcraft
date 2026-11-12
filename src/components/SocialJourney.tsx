@@ -28,9 +28,9 @@ export const SocialJourney: React.FC = () => {
   if (channels.length === 0) return null;
 
   return (
-    <section className="py-14 bg-[#0B0E16] relative overflow-hidden border-t border-white/[0.06]">
+    <section className="py-10 sm:py-14 bg-[#0B0E16] relative overflow-hidden border-t border-white/[0.06]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="mb-8">
+        <div className="mb-5 sm:mb-8">
           <span className="text-xs font-semibold tracking-[0.2em] text-[#E5B869] uppercase block mb-1">
             Connect
           </span>
@@ -39,7 +39,7 @@ export const SocialJourney: React.FC = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {channels.map((channel) => {
             if (!channel) return null;
             const Icon = channel.icon;
@@ -48,7 +48,7 @@ export const SocialJourney: React.FC = () => {
                 key={channel.name}
                 href={channel.url}
                 {...(channel.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className="p-5 rounded-2xl bg-[#111520] border border-white/[0.08] hover:border-[#E5B869]/40 transition-all duration-300 flex items-center justify-between group"
+                className="p-4 sm:p-5 rounded-2xl bg-[#111520] border border-white/[0.08] hover:border-[#E5B869]/40 transition-all duration-300 flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-[#E5B869]/10 border border-[#E5B869]/20 flex items-center justify-center text-[#E5B869] shrink-0">
