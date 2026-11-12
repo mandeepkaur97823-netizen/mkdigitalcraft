@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, CheckCircle2, ArrowRight, Send } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, ArrowRight, Send, Instagram } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { useSiteData } from '../context/SiteContext';
 import { PhoneNumberInput } from './PhoneNumberInput';
@@ -162,7 +162,7 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                 </p>
               </div>
 
-              <div className="flex items-center justify-center pt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={onClose}
@@ -171,6 +171,16 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                   <span>Explore Website</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+                <a
+                  href={settings.instagramDmUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={onClose}
+                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/60 hover:text-[#E5B869] transition-colors"
+                >
+                  <Instagram className="w-4 h-4 text-[#E5B869]" />
+                  <span>Instagram DM</span>
+                </a>
               </div>
             </div>
           ) : (

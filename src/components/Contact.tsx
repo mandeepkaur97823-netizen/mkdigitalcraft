@@ -493,10 +493,21 @@ export const Contact: React.FC<ContactProps> = ({
                 </button>
 
                 {isSent && (
-                  <p className="text-xs text-emerald-300 flex items-center justify-center gap-1.5 pt-1">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Message sent successfully! We will contact you soon.</span>
-                  </p>
+                  <div className="pt-1 flex flex-col items-center gap-3">
+                    <p className="text-xs text-emerald-300 flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Message sent successfully! We will contact you soon.</span>
+                    </p>
+                    <a
+                      href={settings.instagramDmUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/60 hover:text-[#E5B869] bg-white/[0.03] hover:bg-white/[0.06] transition-all"
+                    >
+                      <Instagram className="w-4 h-4 text-[#E5B869]" />
+                      <span>Instagram DM</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </form>
