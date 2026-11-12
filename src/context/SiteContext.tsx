@@ -51,7 +51,7 @@ export interface EnquiryRecord {
   budgetRange: string;
   referenceLink: string;
   projectDetails: string;
-  channel: 'instagram' | 'email';
+  channel: 'website' | 'instagram' | 'email';
   status: EnquiryStatus;
 }
 
@@ -70,7 +70,7 @@ interface SiteContextValue {
   addPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
   updatePortfolioItem: (item: PortfolioItem) => void;
   deletePortfolioItem: (id: string) => void;
-  addEnquiry: (entry: Omit<EnquiryRecord, 'id' | 'createdAt' | 'status'>) => void;
+  addEnquiry: (entry: Omit<EnquiryRecord, 'id' | 'createdAt' | 'status'>) => Promise<boolean>;
   updateEnquiryStatus: (id: string, status: EnquiryStatus) => void;
   deleteEnquiry: (id: string) => void;
   resetSiteDefaults: () => void;
@@ -472,7 +472,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
-  const addEnquiry = (entry: Omit<EnquiryRecord, 'id' | 'createdAt' | 'status'>) => {
+  const addEnquiry = async (
+    entry: Omit<EnquiryRecord, 'id' | 'createdAt' | 'status'>
+  ): Promise<boolean> => {
     const record: EnquiryRecord = {
       ...entry,
       id: `enq-${Date.now()}`,
@@ -481,7 +483,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const nextEnquiries = [record, ...enquiries];
     setEnquiries(nextEnquiries);
-    void persistSnapshot(
+    return persistSnapshot(
       { settings, portfolio, enquiries: nextEnquiries },
       { isPublicEnquiry: record, commitMessage: 'Save new client enquiry' }
     );

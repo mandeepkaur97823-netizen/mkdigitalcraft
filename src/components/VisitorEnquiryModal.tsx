@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, CheckCircle2, Instagram, ArrowRight, Send } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, Instagram, ArrowRight, Send, Mail } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { useSiteData } from '../context/SiteContext';
+import { PhoneNumberInput } from './PhoneNumberInput';
+import {
+  formatFullPhone,
+  getCountryByIso,
+  validateCountryPhone,
+} from '../utils/phoneCountries';
 
 interface VisitorEnquiryModalProps {
   isOpen: boolean;
@@ -22,12 +28,14 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
 
   const [name, setName] = useState('');
   const [businessName, setBusinessName] = useState('');
+  const [countryIso, setCountryIso] = useState('IN');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [service, setService] = useState<string>('Website Design');
   const [timeline, setTimeline] = useState<string>('1–2 Weeks');
   const [projectDetails, setProjectDetails] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -49,10 +57,11 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
+    const country = getCountryByIso(countryIso);
+    const phoneError = validateCountryPhone(country, whatsappNumber);
+
     if (!name.trim()) nextErrors.name = 'Please enter your name.';
-    if (!whatsappNumber.trim() || whatsappNumber.replace(/\D/g, '').length < 7) {
-      nextErrors.whatsappNumber = 'Please enter a valid contact or WhatsApp number.';
-    }
+    if (phoneError) nextErrors.whatsappNumber = phoneError;
     if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       nextErrors.email = 'Please enter a valid email address.';
     }
@@ -63,28 +72,52 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    addEnquiry({
-      name: name.trim(),
-      businessName: businessName.trim(),
-      whatsappNumber: whatsappNumber.trim(),
-      email: email.trim(),
-      service,
-      timeline,
-      budgetRange: 'Standard Studio Package',
-      referenceLink: '',
-      projectDetails: projectDetails.trim(),
-      channel: 'instagram',
-    });
-
-    setSubmitted(true);
+  const getFormattedPhone = () => {
+    return formatFullPhone(getCountryByIso(countryIso), whatsappNumber);
   };
 
-  const buildInstagramPrefillUrl = () => {
-    return settings.instagramDmUrl;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await addEnquiry({
+        name: name.trim(),
+        businessName: businessName.trim(),
+        whatsappNumber: getFormattedPhone(),
+        email: email.trim(),
+        service,
+        timeline,
+        budgetRange: 'Standard Studio Package',
+        referenceLink: '',
+        projectDetails: projectDetails.trim(),
+        channel: 'website',
+      });
+
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const buildBriefText = () => {
+    return `Hello MK Digital Craft!
+
+Project Enquiry
+- Name: ${name.trim()}
+${businessName.trim() ? `- Brand: ${businessName.trim()}\n` : ''}- Contact / WhatsApp: ${getFormattedPhone()}
+${email.trim() ? `- Email: ${email.trim()}\n` : ''}- Service: ${service}
+- Timeline: ${timeline}
+
+Project Details:
+${projectDetails.trim()}`;
+  };
+
+  const buildMailtoUrl = () => {
+    const subject = encodeURIComponent(`Project Enquiry: ${service} — ${name.trim()}`);
+    const body = encodeURIComponent(buildBriefText());
+    return `mailto:${settings.email}?subject=${subject}&body=${body}`;
   };
 
   const inputBase =
@@ -144,12 +177,12 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                   Thank You, {name.trim()}!
                 </h3>
                 <p className="text-xs sm:text-sm text-[#CBD5E1] max-w-md mx-auto leading-relaxed">
-                  Your details have been saved with MK Digital Craft. You can now explore our full
-                  portfolio or message us directly on Instagram DM.
+                  Your message is saved in our Admin Portal. You can explore the website or reach
+                  out via Instagram DM or Email below:
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={onClose}
@@ -159,15 +192,32 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <a
-                  href={buildInstagramPrefillUrl()}
+                  href={settings.instagramDmUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={onClose}
-                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/50 hover:text-[#E5B869] transition-colors"
+                  onClick={() => {
+                    try {
+                      void navigator.clipboard.writeText(buildBriefText());
+                    } catch {
+                      // Ignore clipboard restrictions
+                    }
+                    onClose();
+                  }}
+                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/50 hover:text-[#E5B869] transition-colors"
                 >
                   <Instagram className="w-4 h-4" />
-                  <span>Message on Instagram</span>
+                  <span>Send via Instagram DM</span>
                 </a>
+                {settings.email && (
+                  <a
+                    href={buildMailtoUrl()}
+                    onClick={onClose}
+                    className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/50 hover:text-[#E5B869] transition-colors"
+                  >
+                    <Mail className="w-4 h-4 text-[#E5B869]" />
+                    <span>Send via Email</span>
+                  </a>
+                )}
               </div>
             </div>
           ) : (
@@ -216,23 +266,24 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                   <label htmlFor="visitor-phone" className="block text-xs font-medium text-[#E2E8F0] mb-1.5">
                     WhatsApp / Contact Number <span className="text-[#E5B869]">*</span>
                   </label>
-                  <input
+                  <PhoneNumberInput
                     id="visitor-phone"
-                    type="tel"
-                    inputMode="tel"
-                    value={whatsappNumber}
-                    onChange={(e) => {
-                      setWhatsappNumber(e.target.value);
+                    countryIso={countryIso}
+                    onCountryChange={(iso) => {
+                      setCountryIso(iso);
                       if (errors.whatsappNumber) {
                         setErrors((prev) => ({ ...prev, whatsappNumber: '' }));
                       }
                     }}
-                    placeholder="+91 98XXX XXXXX"
-                    className={errors.whatsappNumber ? inputError : inputNormal}
+                    value={whatsappNumber}
+                    onChange={(digits) => {
+                      setWhatsappNumber(digits);
+                      if (errors.whatsappNumber) {
+                        setErrors((prev) => ({ ...prev, whatsappNumber: '' }));
+                      }
+                    }}
+                    error={errors.whatsappNumber}
                   />
-                  {errors.whatsappNumber && (
-                    <p className="mt-1 text-[11px] text-rose-400">{errors.whatsappNumber}</p>
-                  )}
                 </div>
 
                 <div>
@@ -318,10 +369,11 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all shadow-[0_10px_26px_-8px_rgba(229,184,105,0.5)] cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full sm:flex-1 min-h-[48px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 disabled:opacity-65 transition-all shadow-[0_10px_26px_-8px_rgba(229,184,105,0.5)] cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Submit & Enter Website</span>
+                  <span>{isSubmitting ? 'Sending...' : 'Send & Enter Website'}</span>
                 </button>
 
                 <button

@@ -813,7 +813,11 @@ Details: ${item.projectDetails}`;
                           </div>
                           <p className="text-xs text-[#94A3B8]">
                             {new Date(item.createdAt).toLocaleString()} · via{' '}
-                            {item.channel === 'instagram' ? 'Instagram DM' : 'Email'}
+                            {item.channel === 'website'
+                              ? 'Website Form'
+                              : item.channel === 'instagram'
+                                ? 'Instagram DM'
+                                : 'Email'}
                           </p>
                         </div>
 
