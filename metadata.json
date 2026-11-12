@@ -1,0 +1,6 @@
+{
+  "name": "MK Digital Craft",
+  "description": "MK Digital Craft offers creative website design, video editing and graphic design services. Explore our digital services and discuss your next creative project.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
