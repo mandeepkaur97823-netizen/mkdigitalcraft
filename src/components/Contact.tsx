@@ -197,7 +197,7 @@ ${projectDetails.trim()}`;
   };
 
   const inputBase =
-    'w-full px-4 py-3 rounded-xl bg-[#07090E]/90 border text-white text-sm placeholder:text-[#94A3B8]/40 outline-none transition-all duration-200';
+    'w-full px-4 py-3 rounded-xl bg-[#07090E]/90 border text-white text-base sm:text-sm placeholder:text-[#94A3B8]/40 outline-none transition-all duration-200';
   const inputNormal = `${inputBase} border-white/12 hover:border-white/25 focus:border-[#E5B869] focus:bg-[#090C12] focus:ring-1 focus:ring-[#E5B869]/60`;
   const inputError = `${inputBase} border-rose-500/70 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/50`;
 

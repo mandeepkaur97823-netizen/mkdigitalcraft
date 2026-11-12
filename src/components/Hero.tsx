@@ -13,7 +13,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreWork, onStartProject }) => 
   return (
     <section
       id="home"
-      className="relative min-h-[88vh] flex items-center justify-center pt-32 sm:pt-36 pb-20 overflow-hidden bg-[#07090E]"
+      className="relative min-h-[88vh] flex items-center justify-center pt-36 sm:pt-36 pb-16 sm:pb-20 overflow-hidden bg-[#07090E]"
     >
       {/* Dark cinematic backdrop with subtle golden reflection and readability overlay */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

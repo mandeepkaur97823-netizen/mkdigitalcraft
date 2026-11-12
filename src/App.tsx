@@ -12,6 +12,7 @@ import { SocialJourney } from './components/SocialJourney';
 import { Footer } from './components/Footer';
 import { AdminPortal } from './components/AdminPortal';
 import { BrandLogo } from './components/BrandLogo';
+import { VisitorEnquiryModal } from './components/VisitorEnquiryModal';
 import { Monitor, Film, MessageSquare, Instagram, Mail, Lock, Sparkles } from 'lucide-react';
 
 function isAdminLocation(): boolean {
@@ -24,11 +25,36 @@ function isAdminLocation(): boolean {
   );
 }
 
+const VISITOR_MODAL_SESSION_KEY = 'mk_dc_visitor_prompted';
+
 function AppContent() {
   const { settings } = useSiteData();
   const [selectedServiceForEnquiry, setSelectedServiceForEnquiry] = useState('Website Design');
   const [selectedProjectNote, setSelectedProjectNote] = useState('');
   const [isAdminRoute, setIsAdminRoute] = useState<boolean>(isAdminLocation);
+  const [showVisitorModal, setShowVisitorModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isAdminRoute || !settings.siteEnabled) return;
+    try {
+      if (sessionStorage.getItem(VISITOR_MODAL_SESSION_KEY) === '1') return;
+    } catch {
+      // Ignore storage restrictions
+    }
+    const timer = window.setTimeout(() => {
+      setShowVisitorModal(true);
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [isAdminRoute, settings.siteEnabled]);
+
+  const handleCloseVisitorModal = () => {
+    setShowVisitorModal(false);
+    try {
+      sessionStorage.setItem(VISITOR_MODAL_SESSION_KEY, '1');
+    } catch {
+      // Ignore storage restrictions
+    }
+  };
 
   useEffect(() => {
     const syncRoute = () => setIsAdminRoute(isAdminLocation());
@@ -163,6 +189,8 @@ function AppContent() {
       </main>
 
       <Footer onOpenAdmin={openAdminPortal} />
+
+      <VisitorEnquiryModal isOpen={showVisitorModal} onClose={handleCloseVisitorModal} />
 
       {/* Mobile Quick Actions */}
       <nav

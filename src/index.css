@@ -14,11 +14,13 @@
 }
 
 @layer base {
+  html,
   body {
     background-color: #07090E;
     color: #F8FAFC;
     font-family: var(--font-sans);
     overflow-x: hidden;
+    max-width: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {
