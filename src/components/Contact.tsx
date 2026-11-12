@@ -19,6 +19,10 @@ import {
   getCountryByIso,
   validateCountryPhone,
 } from '../utils/phoneCountries';
+import {
+  copyMessageToClipboard,
+  formatEnquiryDmMessage,
+} from '../utils/enquiryMessage';
 
 interface ContactProps {
   initialService?: string;
@@ -72,6 +76,8 @@ export const Contact: React.FC<ContactProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [lastSentMessage, setLastSentMessage] = useState('');
+  const [dmCopiedHint, setDmCopiedHint] = useState(false);
 
   useEffect(() => {
     if (initialService) {
@@ -116,12 +122,25 @@ export const Contact: React.FC<ContactProps> = ({
     e.preventDefault();
     if (!validateForm() || isSubmitting) return;
 
+    const formattedPhone = getFormattedContactNumber();
+    const formattedDmMessage = formatEnquiryDmMessage({
+      name,
+      businessName,
+      whatsappNumber: formattedPhone,
+      email,
+      service: serviceRequired,
+      timeline,
+      budgetRange,
+      referenceLink,
+      projectDetails,
+    });
+
     setIsSubmitting(true);
     try {
       await addEnquiry({
         name: name.trim(),
         businessName: businessName.trim(),
-        whatsappNumber: getFormattedContactNumber(),
+        whatsappNumber: formattedPhone,
         email: email.trim(),
         service: serviceRequired,
         timeline,
@@ -130,6 +149,9 @@ export const Contact: React.FC<ContactProps> = ({
         projectDetails: projectDetails.trim(),
         channel: 'website',
       });
+      setLastSentMessage(formattedDmMessage);
+      setDmCopiedHint(false);
+      void copyMessageToClipboard(formattedDmMessage);
       setName('');
       setBusinessName('');
       setWhatsappNumber('');
@@ -493,7 +515,7 @@ export const Contact: React.FC<ContactProps> = ({
                 </button>
 
                 {isSent && (
-                  <div className="pt-1 flex flex-col items-center gap-3">
+                  <div className="pt-1 flex flex-col items-center gap-2.5">
                     <p className="text-xs text-emerald-300 flex items-center justify-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       <span>Message sent successfully! We will contact you soon.</span>
@@ -502,11 +524,21 @@ export const Contact: React.FC<ContactProps> = ({
                       href={settings.instagramDmUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => {
+                        void copyMessageToClipboard(lastSentMessage).then((ok) => {
+                          if (ok) setDmCopiedHint(true);
+                        });
+                      }}
                       className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/60 hover:text-[#E5B869] bg-white/[0.03] hover:bg-white/[0.06] transition-all"
                     >
                       <Instagram className="w-4 h-4 text-[#E5B869]" />
                       <span>Instagram DM</span>
                     </a>
+                    {dmCopiedHint && (
+                      <p className="text-[11px] text-[#E5B869]">
+                        Message copied! Just paste it in the Instagram DM chat.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

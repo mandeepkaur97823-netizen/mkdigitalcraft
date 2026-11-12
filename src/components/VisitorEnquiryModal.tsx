@@ -8,6 +8,10 @@ import {
   getCountryByIso,
   validateCountryPhone,
 } from '../utils/phoneCountries';
+import {
+  copyMessageToClipboard,
+  formatEnquiryDmMessage,
+} from '../utils/enquiryMessage';
 
 interface VisitorEnquiryModalProps {
   isOpen: boolean;
@@ -37,6 +41,8 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [lastSentMessage, setLastSentMessage] = useState('');
+  const [dmCopied, setDmCopied] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -80,12 +86,23 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
     e.preventDefault();
     if (!validate() || isSubmitting) return;
 
+    const formattedPhone = getFormattedPhone();
+    const formattedDmMessage = formatEnquiryDmMessage({
+      name,
+      businessName,
+      whatsappNumber: formattedPhone,
+      email,
+      service,
+      timeline,
+      projectDetails,
+    });
+
     setIsSubmitting(true);
     try {
       await addEnquiry({
         name: name.trim(),
         businessName: businessName.trim(),
-        whatsappNumber: getFormattedPhone(),
+        whatsappNumber: formattedPhone,
         email: email.trim(),
         service,
         timeline,
@@ -95,6 +112,9 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
         channel: 'website',
       });
 
+      setLastSentMessage(formattedDmMessage);
+      setDmCopied(false);
+      void copyMessageToClipboard(formattedDmMessage);
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -175,11 +195,15 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
                   href={settings.instagramDmUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={onClose}
+                  onClick={() => {
+                    void copyMessageToClipboard(lastSentMessage).then((ok) => {
+                      if (ok) setDmCopied(true);
+                    });
+                  }}
                   className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/60 hover:text-[#E5B869] transition-colors"
                 >
                   <Instagram className="w-4 h-4 text-[#E5B869]" />
-                  <span>Instagram DM</span>
+                  <span>{dmCopied ? 'Copied! Paste in DM' : 'Instagram DM'}</span>
                 </a>
               </div>
             </div>
