@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, CheckCircle2, Instagram, ArrowRight, Send, Mail } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, ArrowRight, Send } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { useSiteData } from '../context/SiteContext';
 import { PhoneNumberInput } from './PhoneNumberInput';
@@ -101,25 +101,6 @@ export const VisitorEnquiryModal: React.FC<VisitorEnquiryModalProps> = ({ isOpen
     }
   };
 
-  const buildBriefText = () => {
-    return `Hello MK Digital Craft!
-
-Project Enquiry
-- Name: ${name.trim()}
-${businessName.trim() ? `- Brand: ${businessName.trim()}\n` : ''}- Contact / WhatsApp: ${getFormattedPhone()}
-${email.trim() ? `- Email: ${email.trim()}\n` : ''}- Service: ${service}
-- Timeline: ${timeline}
-
-Project Details:
-${projectDetails.trim()}`;
-  };
-
-  const buildMailtoUrl = () => {
-    const subject = encodeURIComponent(`Project Enquiry: ${service} — ${name.trim()}`);
-    const body = encodeURIComponent(buildBriefText());
-    return `mailto:${settings.email}?subject=${subject}&body=${body}`;
-  };
-
   const inputBase =
     'w-full px-3.5 py-2.5 sm:py-3 rounded-xl bg-[#07090E]/90 border text-white text-base sm:text-sm placeholder:text-[#94A3B8]/45 outline-none transition-all duration-200';
   const inputNormal = `${inputBase} border-white/12 hover:border-white/25 focus:border-[#E5B869] focus:ring-1 focus:ring-[#E5B869]/60`;
@@ -174,50 +155,22 @@ ${projectDetails.trim()}`;
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-xl font-display font-semibold text-white">
-                  Thank You, {name.trim()}!
+                  Message Sent!
                 </h3>
                 <p className="text-xs sm:text-sm text-[#CBD5E1] max-w-md mx-auto leading-relaxed">
-                  Your message is saved in our Admin Portal. You can explore the website or reach
-                  out via Instagram DM or Email below:
+                  Thank you, {name.trim()}. We have received your message and will contact you soon.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 pt-2">
+              <div className="flex items-center justify-center pt-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all cursor-pointer"
+                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all cursor-pointer"
                 >
                   <span>Explore Website</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <a
-                  href={settings.instagramDmUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    try {
-                      void navigator.clipboard.writeText(buildBriefText());
-                    } catch {
-                      // Ignore clipboard restrictions
-                    }
-                    onClose();
-                  }}
-                  className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/50 hover:text-[#E5B869] transition-colors"
-                >
-                  <Instagram className="w-4 h-4" />
-                  <span>Send via Instagram DM</span>
-                </a>
-                {settings.email && (
-                  <a
-                    href={buildMailtoUrl()}
-                    onClick={onClose}
-                    className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white border border-white/15 hover:border-[#E5B869]/50 hover:text-[#E5B869] transition-colors"
-                  >
-                    <Mail className="w-4 h-4 text-[#E5B869]" />
-                    <span>Send via Email</span>
-                  </a>
-                )}
               </div>
             </div>
           ) : (

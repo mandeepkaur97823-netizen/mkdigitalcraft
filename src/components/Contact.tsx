@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Instagram,
   Mail,
-  Copy,
-  Check,
   ArrowUpRight,
   Monitor,
   Film,
@@ -72,10 +70,8 @@ export const Contact: React.FC<ContactProps> = ({
   const [projectDetails, setProjectDetails] = useState(initialProjectNote);
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasDispatched, setHasDispatched] = useState(false);
-  const [followUpNote, setFollowUpNote] = useState('');
+  const [isSent, setIsSent] = useState(false);
 
   useEffect(() => {
     if (initialService) {
@@ -116,20 +112,6 @@ export const Contact: React.FC<ContactProps> = ({
     return formatFullPhone(getCountryByIso(countryIso), whatsappNumber);
   };
 
-  const buildFormattedBrief = () => {
-    return `Hello MK Digital Craft!
-
-New Project Enquiry
-- Name: ${name.trim()}
-${businessName.trim() ? `- Business / Brand: ${businessName.trim()}\n` : ''}- Contact / WhatsApp: ${getFormattedContactNumber()}
-${email.trim() ? `- Email: ${email.trim()}\n` : ''}- Service: ${serviceRequired}
-- Timeline: ${timeline}
-- Project Tier: ${budgetRange}
-${referenceLink.trim() ? `- Reference Link: ${referenceLink.trim()}\n` : ''}
-Project Details:
-${projectDetails.trim()}`;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm() || isSubmitting) return;
@@ -148,53 +130,17 @@ ${projectDetails.trim()}`;
         projectDetails: projectDetails.trim(),
         channel: 'website',
       });
-      setHasDispatched(true);
-      setFollowUpNote('');
+      setName('');
+      setBusinessName('');
+      setWhatsappNumber('');
+      setEmail('');
+      setReferenceLink('');
+      setProjectDetails('');
+      setErrors({});
+      setIsSent(true);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleSendViaInstagramDm = async () => {
-    const brief = buildFormattedBrief();
-    try {
-      await navigator.clipboard.writeText(brief);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3500);
-      setFollowUpNote('Brief copied to clipboard — paste & send in Instagram DM!');
-    } catch {
-      setFollowUpNote('Opening @mk.digitalcraft Instagram DM...');
-    }
-    window.open(settings.instagramDmUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleSendViaEmail = () => {
-    const subject = encodeURIComponent(`Project Enquiry: ${serviceRequired} — ${name.trim()}`);
-    const body = encodeURIComponent(buildFormattedBrief());
-    setFollowUpNote('Opening your email app with your prepared project brief...');
-    window.location.href = `mailto:${settings.email}?subject=${subject}&body=${body}`;
-  };
-
-  const handleCopyDetails = async () => {
-    try {
-      await navigator.clipboard.writeText(buildFormattedBrief());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // Ignore clipboard failures
-    }
-  };
-
-  const handleReset = () => {
-    setName('');
-    setBusinessName('');
-    setWhatsappNumber('');
-    setEmail('');
-    setReferenceLink('');
-    setProjectDetails('');
-    setErrors({});
-    setHasDispatched(false);
-    setFollowUpNote('');
   };
 
   const getBriefPlaceholder = () => {
@@ -535,81 +481,24 @@ ${projectDetails.trim()}`;
                 </div>
               </div>
 
-              {/* Submit Action / Post-Send DM & Email Options */}
-              {!hasDispatched ? (
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full min-h-[48px] py-3.5 px-6 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 disabled:opacity-65 transition-all shadow-[0_10px_28px_-8px_rgba(229,184,105,0.5)] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>{isSubmitting ? 'Sending Message...' : 'Send Message'}</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="p-4 sm:p-5 rounded-2xl bg-emerald-950/35 border border-emerald-500/35 space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-semibold text-white">
-                          Message Sent to {settings.brandName}!
-                        </p>
-                        <p className="text-xs text-emerald-200/85 mt-0.5 leading-relaxed">
-                          Your enquiry has been received and saved to our Admin Portal. You can also
-                          reach us directly below if needed:
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+              {/* Submit Action */}
+              <div className="pt-2 space-y-3">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full min-h-[48px] py-3.5 px-6 rounded-full text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 disabled:opacity-65 transition-all shadow-[0_10px_28px_-8px_rgba(229,184,105,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
+                </button>
 
-                  <div className="flex flex-col sm:flex-row gap-2.5">
-                    <button
-                      type="button"
-                      onClick={handleSendViaInstagramDm}
-                      className="flex-1 min-h-[46px] py-3 px-5 rounded-full text-xs sm:text-sm font-semibold text-[#07090E] bg-gradient-to-r from-[#F3D18E] via-[#E5B869] to-[#C6903C] hover:brightness-110 transition-all shadow-[0_10px_24px_-8px_rgba(229,184,105,0.45)] flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Instagram className="w-4 h-4" />
-                      <span>Send via Instagram DM</span>
-                    </button>
-
-                    {settings.email && (
-                      <button
-                        type="button"
-                        onClick={handleSendViaEmail}
-                        className="flex-1 sm:flex-initial min-h-[46px] py-3 px-5 rounded-full text-xs sm:text-sm font-medium text-[#F8FAFC] border border-white/15 hover:border-[#E5B869]/50 bg-[#07090E]/70 hover:bg-white/[0.06] transition-all flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <Mail className="w-4 h-4 text-[#E5B869]" />
-                        <span>Send via Email</span>
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/[0.08] text-xs">
-                    <span className="text-emerald-200/80">
-                      {followUpNote || `Saved under ${getFormattedContactNumber()}`}
-                    </span>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <button
-                        type="button"
-                        onClick={handleCopyDetails}
-                        className="inline-flex items-center gap-1 font-semibold underline text-white hover:text-[#E5B869] cursor-pointer"
-                      >
-                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copied ? 'Copied' : 'Copy Brief'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleReset}
-                        className="text-[#94A3B8] hover:text-white underline cursor-pointer"
-                      >
-                        Send Another
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+                {isSent && (
+                  <p className="text-xs text-emerald-300 flex items-center justify-center gap-1.5 pt-1">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Message sent successfully! We will contact you soon.</span>
+                  </p>
+                )}
+              </div>
             </form>
           </div>
         </div>
