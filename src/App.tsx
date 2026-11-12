@@ -171,7 +171,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-[#F8FAFC] flex flex-col relative selection:bg-[#E5B869]/30 selection:text-white pb-16 sm:pb-0">
+    <div className="min-h-screen bg-[#07090E] text-[#F8FAFC] flex flex-col relative selection:bg-[#E5B869]/30 selection:text-white pb-16 sm:pb-0 overflow-x-hidden">
       <Navbar onContactClick={scrollToContact} />
 
       <main className="flex-grow">

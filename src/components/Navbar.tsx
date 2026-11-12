@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick }) => {
       }`}
     >
       {/* Top Contact Strip */}
-      <div className="border-b border-white/[0.06] bg-[#0B0E16]/85">
+      <div className="hidden sm:block border-b border-white/[0.06] bg-[#0B0E16]/85">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-wrap items-center justify-center sm:justify-between gap-x-5 gap-y-1 text-[11px] text-[#94A3B8]">
           <div className="hidden sm:inline-flex items-center gap-2 text-[#94A3B8]/90">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
